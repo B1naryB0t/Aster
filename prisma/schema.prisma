@@ -13,3 +13,69 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        Int     @id @default(autoincrement())
+  username  String  @unique
+  email     String  @unique
+  password  String
+  role      String  @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks     Task[]
+  categories Category[]
+  tags      Tag[]
+
+  @@map("users")
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  status      String  @default("pending")
+  priority    String  @default("medium")
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      Int
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  tags        Tag[] @relation("TaskToTag")
+
+  @@map("tasks")
+}
+
+model Category {
+  id        Int     @id @default(autoincrement())
+  name      String
+  color     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks     Task[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        Int     @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks     Task[] @relation("TaskToTag")
+
+  @@map("tags")
+}
