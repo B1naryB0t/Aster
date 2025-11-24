@@ -79,12 +79,14 @@ export const login = async (req, res, next) => {
 		const token = generateToken(user.id, user.role);
 
 		res.json({
+			message: "Login Successful",
 			token,
 			user: {
 				id: user.id,
 				username: user.username,
 				email: user.email,
 				role: user.role,
+				created_at:user.createdAt
 			},
 			expires_in: process.env.JWT_EXPIRES_IN,
 		});
