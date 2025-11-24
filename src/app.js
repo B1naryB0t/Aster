@@ -1,37 +1,21 @@
 import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
 
 import authRoutes from './routes/auth.js';
-import taskRoutes from '../routes/tasks.js';
-import categoryRoutes from '../routs/categories.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import userRoutes from './routes/users.js';
+import taskRoutes from './routes/tasks.js';
+import categoryRoutes from './routes/categories.js';
+import tagRoutes from './routes/tags.js';
 
-const app = express();
+const router = express.Router();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/tasks', taskRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/tags', tagRoutes);
 
-// Routes
-app.use('/auth', authRoutes);
-app.use('/tasks', taskRoutes);
-app.use('/categories', categoryRoutes);
-
-// Health check route
-app.get('/health', (req, res) => {
+router.get('/health', (req, res) => {
 	res.json({ status: 'OK' });
 });
 
-// 404 Handler (AFTER ROUTES)
-app.use((req, res, next) => {
-	const error = new Error('Not Found');
-	error.status = 404;
-	next(error);
-});
-
-// Global Error Handler
-app.use(errorHandler);
-
-export default app;
+export default router;
