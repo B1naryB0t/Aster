@@ -4,43 +4,49 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-	// Create admin user
+	// Create admin user (upsert to avoid duplicate errors)
 	console.log('Creating admin user...');
 	const adminPassword = await bcrypt.hash('admin123', 10);
-	const admin = await prisma.user.create({
-		data: {
+	const admin = await prisma.user.upsert({
+		where: { username: 'admin' },
+		update: {},
+		create: {
 			username: 'admin',
 			email: 'admin@example.com',
 			password: adminPassword,
 			role: 'admin',
 		},
 	});
-	console.log(`Created admin user: ${admin.username} (ID: ${admin.id})`);
+	console.log(`Created/updated admin user: ${admin.username} (ID: ${admin.id})`);
 
 	// Create regular user
 	console.log('Creating regular user...');
 	const userPassword = await bcrypt.hash('user123', 10);
-	const regularUser = await prisma.user.create({
-		data: {
+	const regularUser = await prisma.user.upsert({
+		where: { username: 'johndoe' },
+		update: {},
+		create: {
 			username: 'johndoe',
 			email: 'john@example.com',
 			password: userPassword,
 			role: 'user',
 		},
 	});
-	console.log(`Created regular user: ${regularUser.username} (ID: ${regularUser.id})`);
+	console.log(`Created/updated regular user: ${regularUser.username} (ID: ${regularUser.id})`);
 
 	// Create another regular user for more test data
 	const user2Password = await bcrypt.hash('user123', 10);
-	const regularUser2 = await prisma.user.create({
-		data: {
+	const regularUser2 = await prisma.user.upsert({
+		where: { username: 'janedoe' },
+		update: {},
+		create: {
 			username: 'janedoe',
 			email: 'jane@example.com',
 			password: user2Password,
 			role: 'user',
 		},
 	});
-	console.log(`Created regular user: ${regularUser2.username} (ID: ${regularUser2.id})`);
+	console.log(`Created/updated regular user: ${regularUser2.username} (ID: ${regularUser2.id})`);
 
 	// Create categories for admin
 	console.log('Creating categories for admin...');
