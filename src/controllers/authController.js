@@ -5,47 +5,54 @@ import { generateToken } from '../utils/jwt.js';
 const prisma = new PrismaClient();
 
 export const register = async (req, res, next) => {
-	try {
-		const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-		if (!username || !email || !password) {
-			return res.status(400).json({ error: 'Missing required fields' });
-		}
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
 
-		const existingUser = await prisma.user.findFirst({
-			where: {
-				OR: [{ email }, { username }],
-			},
-		});
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }]
+      }
+    });
 
-		if (existingUser) {
-			return res
-				.status(409)
-				.json({ error: 'Email or username already exists' });
-		}
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email or username already in use' });
+    }
 
-		const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-		const user = await prisma.user.create({
-			data: {
-				username,
-				email,
-				password: hashedPassword,
-				role: 'user',
-			},
-		});
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+        role: 'user'
+      }
+    });
 
-		res.status(201).json({
-			id: user.id,
-			username: user.username,
-			email: user.email,
-			role: user.role,
-			created_at: user.createdAt,
-		});
-	} catch (error) {
-		next(error);
-	}
+    
+    const token = generateToken(user.id, user.role);
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        created_at: user.createdAt,
+      },
+    });
+
+  } catch (error) {
+    next(error);
+  }
 };
+
 
 export const login = async (req, res, next) => {
 	try {
