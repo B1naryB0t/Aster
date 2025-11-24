@@ -3,6 +3,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.js';
+import taskRoutes from '../routes/tasks.js';
+import categoryRoutes from '../routs/categories.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -14,6 +16,8 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/tasks', taskRoutes);
+app.use('/categories', categoryRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
