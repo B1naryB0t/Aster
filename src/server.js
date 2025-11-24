@@ -10,6 +10,15 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.use(express.json());
 
+// Health check route for deployment platforms
+app.get('/', (req, res) => {
+	res.json({ status: 'OK', message: 'Task API is running' });
+});
+
+app.get('/health', (req, res) => {
+	res.json({ status: 'OK' });
+});
+
 app.use('/api', routes);
 
 app.use((req, res, next) => {
@@ -23,4 +32,6 @@ app.use((err, req, res, next) => {
 	res.status(err.status || 500).json({ error: err.message });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
