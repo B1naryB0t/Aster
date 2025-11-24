@@ -12,11 +12,7 @@ app.use(express.json());
 
 // Health check route for deployment platforms
 app.get('/', (req, res) => {
-	res.json({ status: 'OK', message: 'Task API is running' });
-});
-
-app.get('/health', (req, res) => {
-	res.json({ status: 'OK' });
+	res.json({ status: 'OK', message: 'To:Do List API is running' });
 });
 
 app.use('/api', routes);
