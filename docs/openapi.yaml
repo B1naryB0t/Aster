@@ -2,20 +2,16 @@ openapi: 3.1.0
 info:
   title: Aster API
   version: 1.0.0
-  description: Task management API for Users and Managers
+  description: API documentation for the Aster task manager.
 
 servers:
   - url: http://localhost:3000/api
 
-tags:
-  - name: Auth
-  - name: Users
-  - name: Tasks
-  - name: Categories
-  - name: Tags
-
 paths:
 
+  ########################
+  # AUTH
+  ########################
   /auth/register:
     post:
       tags: [Auth]
@@ -25,139 +21,234 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [username, email, password]
-              properties:
-                username: { type: string }
-                email: { type: string }
-                password: { type: string }
+              $ref: "#/components/schemas/RegisterInput"
+            example:
+              name: "Greyson Brummer"
+              email: "greyson@example.com"
+              password: "SuperSecret123!"
       responses:
-        "201": { description: User registered successfully }
-        "400": { description: Missing fields or invalid data }
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 1
+                name: "Greyson Brummer"
+                email: "greyson@example.com"
 
   /auth/login:
     post:
       tags: [Auth]
-      summary: Login and get JWT
+      summary: Login user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [email, password]
-              properties:
-                email: { type: string }
-                password: { type: string }
+              $ref: "#/components/schemas/LoginInput"
+            example:
+              email: "greyson@example.com"
+              password: "SuperSecret123!"
       responses:
-        "200": { description: Login successful }
-        "401": { description: Invalid credentials }
+        200:
+          description: Login success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+              example:
+                token: "jwt_token_value"
 
   /auth/me:
     get:
       tags: [Auth]
       summary: Get current authenticated user
       responses:
-        "200": { description: User profile returned }
-        "401": { description: Unauthorized }
+        200:
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 1
+                name: "Greyson Brummer"
+                email: "greyson@example.com"
 
+
+
+  ########################
+  # USERS
+  ########################
   /users:
     get:
       tags: [Users]
-      summary: List all users (manager only in backend)
+      summary: Get all users
       responses:
-        "200": { description: List of users }
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              example:
+                - id: 1
+                  name: "Greyson Brummer"
+                  email: "greyson@example.com"
+                - id: 2
+                  name: "Alex Smith"
+                  email: "alex@example.com"
+
+    post:
+      tags: [Users]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+            example:
+              name: "New User"
+              email: "newuser@example.com"
+              password: "Password123!"
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 5
+                name: "New User"
+                email: "newuser@example.com"
 
   /users/{id}:
     get:
       tags: [Users]
       summary: Get user by ID
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        "200": { description: User returned }
-        "404": { description: User not found }
+        200:
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 1
+                name: "Greyson Brummer"
+                email: "greyson@example.com"
 
     put:
       tags: [Users]
-      summary: Update user (self-only in backend)
+      summary: Update user
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
-          schema: { type: integer }
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username: { type: string }
-                email: { type: string }
-      responses:
-        "200": { description: User updated }
-
-    delete:
-      tags: [Users]
-      summary: Delete user (self or manager in backend)
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "204": { description: User deleted }
-
-  /users/{id}/role:
-    patch:
-      tags: [Users]
-      summary: Update user role (manager only in backend)
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                role:
-                  type: string
-                  enum: [user, manager]
-      responses:
-        "200": { description: Role updated }
-
-  /tasks:
-    get:
-      tags: [Tasks]
-      summary: Get tasks (backend enforces role rules)
-      responses:
-        "200": { description: List of tasks }
-
-    post:
-      tags: [Tasks]
-      summary: Create a task
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [title]
-              properties:
-                title: { type: string }
-                description: { type: string }
-                status: { type: string }
-                priority: { type: string }
-                dueDate: { type: string }
-                categoryId: { type: integer }
+              $ref: "#/components/schemas/UpdateUser"
+            example:
+              name: "Updated Name"
+              email: "updated@example.com"
       responses:
-        "201": { description: Task created }
+        200:
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 1
+                name: "Updated Name"
+                email: "updated@example.com"
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: User deleted
+
+
+
+  ########################
+  # TASKS
+  ########################
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: Get all tasks
+      responses:
+        200:
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+              example:
+                - id: 1
+                  title: "Finish Aster API"
+                  completed: false
+                  userId: 1
+                - id: 2
+                  title: "Study Security+"
+                  completed: true
+                  userId: 1
+
+    post:
+      tags: [Tasks]
+      summary: Create new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+            example:
+              title: "Write documentation"
+              completed: false
+              userId: 1
+      responses:
+        201:
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                id: 10
+                title: "Write documentation"
+                completed: false
+                userId: 1
 
   /tasks/{id}:
     get:
@@ -167,10 +258,20 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        "200": { description: Task returned }
-        "404": { description: Not found }
+        200:
+          description: Task found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                id: 1
+                title: "Finish Aster API"
+                completed: false
+                userId: 1
 
     put:
       tags: [Tasks]
@@ -179,9 +280,29 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+            example:
+              title: "Updated Task"
+              completed: true
       responses:
-        "200": { description: Task updated }
+        200:
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                id: 1
+                title: "Updated Task"
+                completed: true
+                userId: 1
 
     delete:
       tags: [Tasks]
@@ -190,57 +311,59 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        "204": { description: Task deleted }
+        204:
+          description: Task deleted
 
-  /tasks/user/{userId}/tasks:
-    get:
-      tags: [Tasks]
-      summary: Get tasks by user ID (manager only in backend)
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200": { description: Task list }
 
+
+  ########################
+  # CATEGORIES
+  ########################
   /categories:
     get:
       tags: [Categories]
-      summary: Get categories
+      summary: Get all categories
       responses:
-        "200": { description: List returned }
+        200:
+          description: Category list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+              example:
+                - id: 1
+                  name: "Work"
+                - id: 2
+                  name: "Personal"
 
     post:
       tags: [Categories]
       summary: Create category
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [name, color]
-              properties:
-                name: { type: string }
-                color: { type: string }
+              $ref: "#/components/schemas/CreateCategory"
+            example:
+              name: "Fitness"
       responses:
-        "201": { description: Created }
+        201:
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+              example:
+                id: 3
+                name: "Fitness"
 
   /categories/{id}:
-    get:
-      tags: [Categories]
-      summary: Get category
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200": { description: Category returned }
-        "404": { description: Not found }
-
     put:
       tags: [Categories]
       summary: Update category
@@ -248,9 +371,26 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategory"
+            example:
+              name: "Updated Category"
       responses:
-        "200": { description: Updated }
+        200:
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+              example:
+                id: 1
+                name: "Updated Category"
 
     delete:
       tags: [Categories]
@@ -259,55 +399,59 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        "204": { description: Deleted }
+        204:
+          description: Category deleted
 
+
+
+  ########################
+  # TAGS
+  ########################
   /tags:
     get:
       tags: [Tags]
       summary: Get all tags
       responses:
-        "200": { description: List returned }
+        200:
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+              example:
+                - id: 1
+                  name: "urgent"
+                - id: 2
+                  name: "school"
 
     post:
       tags: [Tags]
       summary: Create tag
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [name]
-              properties:
-                name: { type: string }
+              $ref: "#/components/schemas/CreateTag"
+            example:
+              name: "priority"
       responses:
-        "201": { description: Created }
+        201:
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+              example:
+                id: 3
+                name: "priority"
 
   /tags/{id}:
-    get:
-      tags: [Tags]
-      summary: Get tag
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200": { description: Tag returned }
-        "404": { description: Not found }
-
-    put:
-      tags: [Tags]
-      summary: Update tag
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        "200": { description: Updated }
-
     delete:
       tags: [Tags]
       summary: Delete tag
@@ -315,9 +459,104 @@ paths:
         - name: id
           in: path
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        "204": { description: Deleted }
+        204:
+          description: Tag deleted
+
+
+
+########################
+# COMPONENTS
+########################
+components:
+  schemas:
+
+    ######## AUTH ########
+    RegisterInput:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+      required: [name, email, password]
+
+    LoginInput:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+      required: [email, password]
+
+
+    ######## USERS ########
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+
+    UpdateUser:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+
+
+    ######## TASKS ########
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        completed: { type: boolean }
+        userId: { type: integer }
+
+    CreateTask:
+      type: object
+      properties:
+        title: { type: string }
+        completed: { type: boolean }
+        userId: { type: integer }
+      required: [title, completed, userId]
+
+    UpdateTask:
+      type: object
+      properties:
+        title: { type: string }
+        completed: { type: boolean }
+
+
+    ######## CATEGORIES ########
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+
+    CreateCategory:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+
+
+    ######## TAGS ########
+    Tag:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+
+    CreateTag:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+
+
 
 
 
