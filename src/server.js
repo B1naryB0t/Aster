@@ -9,6 +9,10 @@ const app = express();
 app.use(cors());
 app.use(morgan('tiny'));
 app.use(express.json());
+import { swaggerDocument, swaggerUi } from './swagger.js';
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 app.use('/api', routes);
 
