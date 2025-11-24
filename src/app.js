@@ -14,8 +14,4 @@ router.use('/tasks', taskRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/tags', tagRoutes);
 
-router.get('/health', (req, res) => {
-	res.json({ status: 'OK' });
-});
-
 export default router;
