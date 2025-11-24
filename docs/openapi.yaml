@@ -1,0 +1,398 @@
+openapi: 3.1.0
+info:
+  title: Aster API
+  version: 1.0.0
+  description: REST API documentation for the Aster Task Manager backend.
+
+servers:
+  - url: http://localhost:3000/api
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        email: { type: string }
+        role:
+          type: string
+          enum: [ADMIN, USER]
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Task:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        status: { type: string }
+        priority: { type: string }
+        dueDate: { type: string, format: date-time, nullable: true }
+        userId: { type: integer }
+        categoryId: { type: integer, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        color: { type: string }
+        userId: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Tag:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        userId: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+paths:
+
+  ############################################
+  # AUTH ROUTES
+  ############################################
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        201:
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+
+
+  ############################################
+  # USER ROUTES
+  ############################################
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Get all users (ADMIN logic enforced in backend)
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: User retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    patch:
+      tags: [Users]
+      summary: Update user details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                email: { type: string }
+                role: { type: string }
+      responses:
+        200:
+          description: User updated
+
+    delete:
+      tags: [Users]
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: User deleted
+
+
+  ############################################
+  # TASK ROUTES
+  ############################################
+
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: Get all tasks for logged-in user
+      responses:
+        200:
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { type: string }
+                priority: { type: string }
+                dueDate: { type: string }
+                categoryId: { type: integer }
+      responses:
+        201:
+          description: Task created
+
+
+  /tasks/{id}:
+    patch:
+      tags: [Tasks]
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { type: string }
+                priority: { type: string }
+                dueDate: { type: string }
+                categoryId: { type: integer }
+      responses:
+        200:
+          description: Task updated
+
+    delete:
+      tags: [Tasks]
+      summary: Delete a task by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Task deleted
+
+
+  ############################################
+  # CATEGORY ROUTES
+  ############################################
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: Get all categories for logged-in user
+      responses:
+        200:
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+    post:
+      tags: [Categories]
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, color]
+              properties:
+                name: { type: string }
+                color: { type: string }
+      responses:
+        201:
+          description: Category created
+
+  /categories/{id}:
+    patch:
+      tags: [Categories]
+      summary: Update a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                color: { type: string }
+      responses:
+        200:
+          description: Category updated
+
+    delete:
+      tags: [Categories]
+      summary: Delete a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Category deleted
+
+
+  ############################################
+  # TAG ROUTES
+  ############################################
+
+  /tags:
+    get:
+      tags: [Tags]
+      summary: Get all tags for logged-in user
+      responses:
+        200:
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+
+    post:
+      tags: [Tags]
+      summary: Create a new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        201:
+          description: Tag created
+
+  /tags/{id}:
+    patch:
+      tags: [Tags]
+      summary: Update a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        200:
+          description: Tag updated
+
+    delete:
+      tags: [Tags]
+      summary: Delete a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        200:
+          description: Tag deleted
