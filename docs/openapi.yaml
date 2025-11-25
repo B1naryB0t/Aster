@@ -6,6 +6,9 @@ info:
 
 servers:
   - url: http://localhost:3000/api
+    description: Local Production servers
+  -  url: https://aster-sqik.onrender.com/api-docs/
+     description: Render production server
 
 components:
   securitySchemes:
