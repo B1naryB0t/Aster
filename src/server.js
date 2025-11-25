@@ -12,6 +12,11 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.use(express.json());
 
+// Health check route for deployment platforms
+app.get('/', (req, res) => {
+	res.json({ status: 'OK', message: 'To:Do List API is running' });
+});
+
 const swaggerDocument = YAML.load('./docs/openapi.yaml');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -29,8 +34,9 @@ app.use((err, req, res) => {
     res.status(err.status || 500).json({ error: err.message });
 });
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
-    console.log('Swagger UI → http://localhost:3000/api-docs');
-});
+const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Swagger UI → http://localhost:${PORT}/api-docs`);
+});
