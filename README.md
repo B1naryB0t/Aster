@@ -1,15 +1,15 @@
-Aster To-Do List API – Team 6
+# Aster To-Do List API – Team 6
 
-Developed by:
-Daniel Ferrer
-Greyson Brummer
-Jason Springer-Trammell
-Lucas De Oliveira
+**Developed by:**
+- Daniel Ferrer
+- Greyson Brummer
+- Jason Springer-Trammell
+- Lucas De Oliveira
 
 
-Overview
+# Overview
 
-Aster is a Node.js REST API for managing personal and team-oriented tasks. It supports:
+**Aster is a Node.js REST API for managing personal and team-oriented tasks. It supports:**
 - User authentication with JWT
 - Secure password hashing via bcrypt
 - Task management with categories and tags
@@ -20,7 +20,7 @@ Aster is a Node.js REST API for managing personal and team-oriented tasks. It su
 Aster serves as a robust backend for any productivity or team task-tracking application.
 
 
-Features
+# Features
 
 User Accounts: Register, login, manage profile
 JWT Authentication with refresh & logout
@@ -39,7 +39,7 @@ Roles:
 Secure Access Control using middleware
 
 
-Technology Stack
+# Technology Stack
 - Node.js
 - Express.js
 - PostgreSQL (or other SQL database)
@@ -48,33 +48,33 @@ Technology Stack
 - Jest for testing
 
 
-Getting Started
+# Getting Started
 
-1. Clone the project
+**1. Clone the project**
 git clone https://github.com/your-repo/aster-api.git
 cd aster-api
 
-2. Install dependencies
+**2. Install dependencies**
 npm install
 
-3. Create environment file
+**3. Create environment file**
 PORT=3000
 JWT_SECRET=your_secret_key
 JWT_EXPIRES_IN=some_time (15m)
 DATABASE_URL=postgres://...
 
-4. Run migrations
+**4. Run migrations**
 npx prisma migrate dev
 
-5. Seed database
+**5. Seed database**
 npm run seed
 
-6. Start the server
+**6. Start the server**
 npm run dev
 
 
-API will run at:
+**API will run at:**
 http://localhost:3000
 
-Swagger UI will run at:
+**Swagger UI will run at:**
 http://localhost:3000/api-docs
