@@ -3,13 +3,13 @@ info:
   title: Aster API
   version: 1.0.0
   description: REST API documentation for the Aster Task Manager backend.
-
+# Servers (Local + Production)
 servers:
   - url: http://localhost:3000/api
     description: Local Production servers
-  -  url: https://aster-sqik.onrender.com/api-docs/
+  -  url: https://aster-sqik.onrender.com/api
      description: Render production server
-
+# Data Schemas (User, Task, etc.)
 components:
   securitySchemes:
     bearerAuth:
@@ -118,9 +118,7 @@ paths:
                   token: { type: string }
 
 
-  ############################################
-  # USER ROUTES
-  ############################################
+  
 
   /users:
     get:
